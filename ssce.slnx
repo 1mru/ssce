@@ -1,9 +1,0 @@
-<Solution>
-  <Configurations>
-    <Platform Name="x64" />
-    <Platform Name="x86" />
-  </Configurations>
-  <Project Path="lexilla/src/Lexilla.vcxproj" Id="e541c9be-13bc-4ce6-a0a4-31145f51a2c1" />
-  <Project Path="scintilla/win32/Scintilla.vcxproj" Id="19cca8b8-46b9-4609-b7ce-198da19f07bd" />
-  <Project Path="ssce/ssce.vcxproj" Id="6d273f24-5a80-4d5c-b3d2-63344b14143a" />
-</Solution>
