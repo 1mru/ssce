@@ -59,16 +59,16 @@ namespace ssce {
     }
 
     hwndMainWindow = CreateWindowExW(
-      0,
-      CLASS_NAME,
-      CLASS_NAME,
-      WS_OVERLAPPEDWINDOW,
-      CW_USEDEFAULT, CW_USEDEFAULT,
-      CW_USEDEFAULT, CW_USEDEFAULT,
-      nullptr,
-      nullptr,
-      hInstance,
-      nullptr
+      0,                              // スタイル
+      CLASS_NAME,                     // ウィンドウクラス名
+      CLASS_NAME,                     // ウィンドウタイトル
+      WS_OVERLAPPEDWINDOW,            // ウィンドウスタイル
+      CW_USEDEFAULT, CW_USEDEFAULT,   // 位置
+      CW_USEDEFAULT, CW_USEDEFAULT,   // サイズ
+      nullptr,                        // 親ウィンドウ
+      nullptr,                        // メニューハンドル
+      hInstance,                      // インスタンスハンドル
+      nullptr                         // 追加パラメータ
     );
 
     if (hwndMainWindow == nullptr) {
@@ -132,7 +132,6 @@ namespace ssce {
       hmodScintilla = nullptr;
     }
   }
-  
 }
 
 int WINAPI wWinMain(
@@ -142,22 +141,24 @@ int WINAPI wWinMain(
   _In_ int nCmdShow
 ) {
     try {
-    ssce::setDpiAwareness();
-    ssce::createMainWindow(hInstance);
-    ssce::createEditor(hInstance);
-    ssce::configureEditor();
 
-    ShowWindow(hwndMainWindow, nCmdShow);
-    SetFocus(hwndEditor);
+      ssce::setDpiAwareness();
+      ssce::createMainWindow(hInstance);
+      ssce::createEditor(hInstance);
+      ssce::configureEditor();
 
-    MSG msg = {};
-    while (GetMessageW(&msg, nullptr, 0, 0) > 0) {
-      TranslateMessage(&msg);
-      DispatchMessageW(&msg);
-    }
+      ShowWindow(hwndMainWindow, nCmdShow);
+      SetFocus(hwndEditor);
 
-    ssce::destroyEditor();
-    return 0;
+      MSG msg = {};
+      while (GetMessageW(&msg, nullptr, 0, 0) > 0){
+        TranslateMessage(&msg);
+        DispatchMessageW(&msg);
+      }
+
+      ssce::destroyEditor();
+      return 0;
+
   } catch (const std::exception& e) {
     MessageBoxA(
       nullptr,
