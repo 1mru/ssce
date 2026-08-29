@@ -2,12 +2,13 @@
 
 #define _WIN32_WINNT 0x0A00 // DPI awareness
 #define WIN32_LEAN_AND_MEAN // Trim fat from API
-#include <windows.h>
+
 #include <stdexcept>
+#include <windows.h>
 #include "Scintilla.h"
+#include "editor.h"
 
 HWND hwndMainWindow = nullptr;
-HWND hwndEditor = nullptr;
 HMODULE hmodScintilla = nullptr;
 
 LRESULT CALLBACK WindowProc(
@@ -22,9 +23,9 @@ LRESULT CALLBACK WindowProc(
       return 0;
     }
     case WM_SIZE: {
-      if (hwndEditor != nullptr) {
+      if (mainEditor.get() != nullptr) {
         MoveWindow(
-          hwndEditor,
+          mainEditor.get(),
           0, 0,
           LOWORD(lParam), HIWORD(lParam),
           TRUE
@@ -35,6 +36,7 @@ LRESULT CALLBACK WindowProc(
   }
   return DefWindowProcW(hwnd, uMsg, wParam, lParam);
 }
+
 
 /* 関数はすべてvoid型で、例外をスローする */
 namespace ssce {
@@ -75,63 +77,6 @@ namespace ssce {
       throw std::runtime_error("Failed to create main window");
     }
   }
-
-  void createEditor(HINSTANCE hInstance) {
-    hmodScintilla = LoadLibraryW(L"Scintilla.dll");
-    if (hmodScintilla == nullptr) {
-      throw std::runtime_error("Failed to load Scintilla.dll");
-    }
-
-    hwndEditor = CreateWindowExW(
-      0,
-      L"Scintilla",
-      L"",
-      WS_CHILD | WS_VISIBLE | WS_TABSTOP | WS_CLIPCHILDREN,
-      0, 0,
-      0, 0,
-      hwndMainWindow,
-      nullptr,
-      hInstance,
-      nullptr
-    );
-
-    if (hwndEditor == nullptr) {
-      throw std::runtime_error("Failed to create Scintilla editor");
-    }
-  }
-
-  void configureEditor() {
-    if (hwndEditor == nullptr) {
-      throw std::runtime_error("Editor window is not created");
-    }
-
-    SendMessageW(hwndEditor, SCI_SETMARGINWIDTHN, 0, 50);
-    SendMessageW(hwndEditor, SCI_SETMARGINTYPEN, 0, SC_MARGIN_NUMBER);
-
-    // Note A rather than W
-    SendMessageA(
-      hwndEditor,
-      SCI_STYLESETFONT,
-      STYLE_DEFAULT,
-      (LPARAM) "Cascadia Code" // Note lack of L before font name
-    );
-
-    SendMessageW(hwndEditor, SCI_STYLESETSIZE, STYLE_DEFAULT, 12);
-    SendMessageW(hwndEditor, SCI_SETTABWIDTH, 2, 0);
-    SendMessageW(hwndEditor, SCI_SETUSETABS, FALSE, 0);
-  }
-
-  void destroyEditor() {
-    if (hwndEditor != nullptr) {
-      DestroyWindow(hwndEditor);
-      hwndEditor = nullptr;
-    }
-
-    if (hmodScintilla != nullptr) {
-      FreeLibrary(hmodScintilla);
-      hmodScintilla = nullptr;
-    }
-  }
 }
 
 int WINAPI wWinMain(
@@ -144,11 +89,11 @@ int WINAPI wWinMain(
 
       ssce::setDpiAwareness();
       ssce::createMainWindow(hInstance);
-      ssce::createEditor(hInstance);
-      ssce::configureEditor();
+      
+      Editor mainEditor(hInstance, hwndMainWindow);
 
       ShowWindow(hwndMainWindow, nCmdShow);
-      SetFocus(hwndEditor);
+      SetFocus(mainEditor.get());
 
       MSG msg = {};
       while (GetMessageW(&msg, nullptr, 0, 0) > 0){
@@ -156,7 +101,6 @@ int WINAPI wWinMain(
         DispatchMessageW(&msg);
       }
 
-      ssce::destroyEditor();
       return 0;
 
   } catch (const std::exception& e) {
