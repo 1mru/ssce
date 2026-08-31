@@ -11,7 +11,8 @@
                 "-o",
                 "${fileDirname}\\${fileBasenameNoExtension}.exe",
                 "-mwindows",
-                "-municode"
+                "-municode",
+                "-O3"
             ],
             "options": {
                 "cwd": "C:/msys64/ucrt64/bin"
