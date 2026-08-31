@@ -27,31 +27,46 @@ LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
   return DefWindowProcW(hwnd, uMsg, wParam, lParam);
 }  // wndProc
 
-int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ PWSTR,
-                    _In_ int nCmdShow) {
+int WINAPI wWinMain(_In_ HINSTANCE hInst, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int nCmdShow) {
   SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
 
   const wchar_t CLASS_NAME[] = L"ssce";
 
   WNDCLASSW wc = {};
   wc.lpfnWndProc = wndProc;
-  wc.hInstance = hInstance;
+  wc.hInstance = hInst;
   wc.lpszClassName = CLASS_NAME;
   if (!RegisterClassW(&wc)) return -1;
 
-  HWND hwndMain =
-      CreateWindowExW(0, CLASS_NAME, CLASS_NAME, WS_OVERLAPPEDWINDOW,
-                      CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
-                      CW_USEDEFAULT, nullptr, nullptr, hInstance, nullptr);
-  if (hwndMain == nullptr) return -1;
+  HWND hwndMain = CreateWindowExW(
+    0,
+    CLASS_NAME,
+    CLASS_NAME,
+    WS_OVERLAPPEDWINDOW,
+    CW_USEDEFAULT, CW_USEDEFAULT,
+    CW_USEDEFAULT, CW_USEDEFAULT,
+    nullptr,
+    nullptr,
+    hInst,
+    nullptr
+  ); if (hwndMain == nullptr) return -1;
 
   HMODULE hmodScintilla = LoadLibraryW(L"Scintilla.dll");
   if (hmodScintilla == nullptr) return -1;
 
-  hwndEditor =
-      CreateWindowExW(0, L"Scintilla", L"",
-                      WS_CHILD | WS_VISIBLE | WS_TABSTOP | WS_CLIPCHILDREN, 0,
-                      0, 0, 0, hwndMain, nullptr, hInstance, nullptr);
+  hwndEditor = CreateWindowExW(
+    0,
+    L"Scintilla",
+    L"",
+    WS_CHILD | WS_VISIBLE | WS_TABSTOP | WS_CLIPCHILDREN,
+    0, 0,
+    0, 0,
+    hwndMain,
+    nullptr,
+    hInst,
+    nullptr
+  );
+  
   if (hwndEditor == nullptr) return -1;
 
   SendMessageW(hwndEditor, SCI_SETMARGINWIDTHN, 0, 50);
