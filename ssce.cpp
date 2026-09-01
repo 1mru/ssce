@@ -30,17 +30,17 @@ LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     
     if (nmhdr->code == SCN_UPDATEUI) { // Try SCN_MODIFIED as well
       int lines = SendMessageW(hEdit, SCI_GETLINECOUNT, 0, 0);
-      int buf = SendMessageW(hEdit, SCI_TEXTWIDTH, STYLE_LINENUMBER, (LPARAM)"_");
       int digit = SendMessageW(hEdit, SCI_TEXTWIDTH, STYLE_LINENUMBER, (LPARAM)"9");
       int width = 0;
       
-      //if (lines < 10) width = buf + digit;
-      //else ifif (lines < 100) width = buf + 2 * digit;
-      if(lines < 1000) width = buf + 3 * digit;
-      else if (lines < 10000) width = buf + 4 * digit;
-      else if (lines < 100000) width = buf + 5 * digit;
-      else if (lines < 1000000) width = buf + 6 * digit;
-      else width = buf + 7 * digit;
+      // (n + 1) * digit for buffer space
+      // if (lines < 10) width = 2 * digit;
+      // else if (lines < 100) width = 3 * digit;
+      if(lines < 1000) width = 4 * digit;
+      else if (lines < 10000) width = 5 * digit;
+      else if (lines < 100000) width = 6 * digit;
+      else if (lines < 1000000) width = 7 * digit;
+      else width = 8 * digit;
       
       SendMessageW(hEdit, SCI_SETMARGINWIDTHN, 0, width);
     }
