@@ -10,21 +10,44 @@
 
 #include "Scintilla.h"
 
-HWND hwndEditor = nullptr;
+HWND hEdit = nullptr;
 
 LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
-  switch (uMsg) {
-    case WM_DESTROY: {
-      PostQuitMessage(0);
-      return 0;
-    }
-    case WM_SIZE: {
-      if (hwndEditor == nullptr) return 0;
-      MoveWindow(hwndEditor, 0, 0, LOWORD(lParam), HIWORD(lParam), TRUE);
-      return 0;
-    }
+  if (uMsg == WM_DESTROY) {
+    PostQuitMessage(0);
+    return 0;
   }
-  return DefWindowProcW(hwnd, uMsg, wParam, lParam);
+  
+  else if (uMsg == WM_SIZE) {
+    if (hEdit == nullptr) return 0;
+    MoveWindow(hEdit, 0, 0, LOWORD(lParam), HIWORD(lParam), TRUE);
+    return 0;
+  }
+  
+  else if (uMsg == WM_NOTIFY) {
+    NMHDR* nmhdr = reinterpret_cast<NMHDR*>(lParam);
+    if (nmhdr->hwndFrom != hEdit) return 0;
+    
+    if (nmhdr->code == SCN_UPDATEUI) { // Try SCN_MODIFIED as well
+      int lines = SendMessageW(hEdit, SCI_GETLINECOUNT, 0, 0);
+      int buf = SendMessageW(hEdit, SCI_TEXTWIDTH, STYLE_LINENUMBER, (LPARAM)"_");
+      int digit = SendMessageW(hEdit, SCI_TEXTWIDTH, STYLE_LINENUMBER, (LPARAM)"9");
+      int width = 0;
+      
+      //if (lines < 10) width = buf + digit;
+      //else ifif (lines < 100) width = buf + 2 * digit;
+      if(lines < 1000) width = buf + 3 * digit;
+      else if (lines < 10000) width = buf + 4 * digit;
+      else if (lines < 100000) width = buf + 5 * digit;
+      else if (lines < 1000000) width = buf + 6 * digit;
+      else width = buf + 7 * digit;
+      
+      SendMessageW(hEdit, SCI_SETMARGINWIDTHN, 0, width);
+    }
+    return 0;
+  }
+  
+  else return DefWindowProcW(hwnd, uMsg, wParam, lParam);
 }  // wndProc
 
 int WINAPI wWinMain(_In_ HINSTANCE hInst, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int nCmdShow) {
@@ -38,7 +61,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInst, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ i
   wc.lpszClassName = CLASS_NAME;
   if (!RegisterClassW(&wc)) return -1;
 
-  HWND hwndMain = CreateWindowExW(
+  HWND hMain = CreateWindowExW(
     0,
     CLASS_NAME,
     CLASS_NAME,
@@ -49,38 +72,38 @@ int WINAPI wWinMain(_In_ HINSTANCE hInst, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ i
     nullptr,
     hInst,
     nullptr
-  ); if (hwndMain == nullptr) return -1;
+  ); if (hMain == nullptr) return -1;
 
-  HMODULE hmodScintilla = LoadLibraryW(L"Scintilla.dll");
-  if (hmodScintilla == nullptr) return -1;
+  HMODULE hScintilla = LoadLibraryW(L"Scintilla.dll");
+  if (hScintilla == nullptr) return -1;
 
-  hwndEditor = CreateWindowExW(
+  hEdit = CreateWindowExW(
     0,
     L"Scintilla",
     L"",
     WS_CHILD | WS_VISIBLE | WS_TABSTOP | WS_CLIPCHILDREN,
     0, 0,
     0, 0,
-    hwndMain,
+    hMain,
     nullptr,
     hInst,
     nullptr
   );
   
-  if (hwndEditor == nullptr) return -1;
+  if (hEdit == nullptr) return -1;
 
-  SendMessageW(hwndEditor, SCI_SETMARGINWIDTHN, 0, 50);
-  SendMessageW(hwndEditor, SCI_SETMARGINTYPEN, 0, SC_MARGIN_NUMBER);
-  SendMessageW(hwndEditor, SCI_STYLESETSIZE, STYLE_DEFAULT, 12);
-  SendMessageW(hwndEditor, SCI_SETTABWIDTH, 2, 0);
-  SendMessageW(hwndEditor, SCI_SETUSETABS, FALSE, 0);
+  SendMessageW(hEdit, SCI_SETMARGINTYPEN, 0, SC_MARGIN_NUMBER);
+  SendMessageW(hEdit, SCI_SETMARGINWIDTHN, 0, 50);
+  SendMessageW(hEdit, SCI_STYLESETSIZE, STYLE_DEFAULT, 12);
+  SendMessageW(hEdit, SCI_SETTABWIDTH, 2, 0);
+  SendMessageW(hEdit, SCI_SETUSETABS, FALSE, 0);
   // WではなくAを使うのはScintillaの仕様
-  SendMessageA(hwndEditor, SCI_STYLESETFONT, STYLE_DEFAULT,
+  SendMessageA(hEdit, SCI_STYLESETFONT, STYLE_DEFAULT,
                (LPARAM) "Consolas"  // Lをつけないことに注意
   );
 
-  ShowWindow(hwndMain, nCmdShow);
-  SetFocus(hwndEditor);
+  ShowWindow(hMain, nCmdShow);
+  SetFocus(hEdit);
 
   MSG msg = {};
   while (GetMessageW(&msg, nullptr, 0, 0) > 0) {
@@ -88,6 +111,6 @@ int WINAPI wWinMain(_In_ HINSTANCE hInst, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ i
     DispatchMessageW(&msg);
   }
 
-  FreeLibrary(hmodScintilla);
+  FreeLibrary(hScintilla);
   return 0;
 }  // wWinMain
