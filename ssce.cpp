@@ -38,10 +38,6 @@ LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
       int lines = SendMessageW(hEdit, SCI_GETLINECOUNT, 0, 0);
       int digit = SendMessageA(hEdit, SCI_TEXTWIDTH, STYLE_LINENUMBER, (LPARAM)"9");
       int width = 0;
-      
-      // (n + 1) * digit for buffer space
-      // if (lines < 10) width = 2 * digit;
-      // else if (lines < 100) width = 3 * digit;
       if(lines < 1000) width = 4 * digit;
       else if (lines < 10000) width = 5 * digit;
       else if (lines < 100000) width = 6 * digit;
@@ -52,7 +48,7 @@ LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     
     if (nmhdr->code == SCN_MODIFIED) {      
       wchar_t title[MAX_PATH + 16];
-      wsprintfW(title, L"%s * - ssce", path);
+      wsprintfW(title, L"%s* - ssce", path);
       SetWindowTextW(hwnd, title);
     }
     return 0;
@@ -74,8 +70,10 @@ LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
       
       std::string text((std::istreambuf_iterator<char>(file)), {});
       SendMessageA(hEdit, SCI_SETTEXT, 0, (LPARAM)text.c_str());
-      
-      SetWindowTextW(hwnd, path);
+      SendMessageA(hEdit, SCI_SETSAVEPOINT, 0, 0);
+      wchar_t title[MAX_PATH + 16];
+      wsprintfW(title, L"%s - ssce", path);
+      SetWindowTextW(hwnd, title);
       return 0;
     } // IDM_OPEN
     
@@ -95,7 +93,9 @@ LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
       file.write(text.data(), length);
       
       SendMessageA(hEdit, SCI_SETSAVEPOINT, 0, 0);
-      SetWindowTextW(hwnd, path);
+      wchar_t title[MAX_PATH + 16];
+      wsprintfW(title, L"%s - ssce", path);
+      SetWindowTextW(hwnd, title);
       return 0;
     } // IDM_SAVE
     
@@ -120,7 +120,9 @@ LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
       file.write(text.data(), length);
     
       SendMessageA(hEdit, SCI_SETSAVEPOINT, 0, 0);
-      SetWindowTextW(hwnd, path);
+      wchar_t title[MAX_PATH + 16];
+      wsprintfW(title, L"%s - ssce", path);
+      SetWindowTextW(hwnd, title);
       return 0;
     } // IDM_SAVEAS
     
