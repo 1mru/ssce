@@ -1,6 +1,6 @@
 CXX = g++
 FLG = -Wall -Wextra -O3 -std=c++23 -mwindows -municode
-SRC = ssce.cpp edit.cpp
+SRC = *.cpp
 HIT = ssce
 
 all: $(HIT)
