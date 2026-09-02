@@ -10,6 +10,7 @@
 #include <windows.h>
 #include <commdlg.h>
 #include "Scintilla.h"
+#include "edit.h"
 
 #define IDM_OPEN    1
 #define IDM_SAVE    2
@@ -17,6 +18,7 @@
 #define IDM_SAVEAS  3
 
 HWND hEdit = nullptr;
+
 wchar_t path[MAX_PATH] = {};
 
 LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
@@ -26,7 +28,7 @@ LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
   }
   
   if (uMsg == WM_SIZE) {
-    MoveWindow(hEdit, 0, 0, LOWORD(lParam), HIWORD(lParam), TRUE);
+    resizeEdit(hEdit, LOWORD(lParam), HIWORD(lParam));
     return 0;
   }
   
@@ -35,16 +37,9 @@ LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     if (nmhdr->hwndFrom != hEdit) return 0;
     
     if (nmhdr->code == SCN_UPDATEUI) {
-      int lines = SendMessageW(hEdit, SCI_GETLINECOUNT, 0, 0);
-      int digit = SendMessageA(hEdit, SCI_TEXTWIDTH, STYLE_LINENUMBER, (LPARAM)"9");
-      int width = 0;
-      if(lines < 1000) width = 4 * digit;
-      else if (lines < 10000) width = 5 * digit;
-      else if (lines < 100000) width = 6 * digit;
-      else if (lines < 1000000) width = 7 * digit;
-      else width = 8 * digit;
-      SendMessageW(hEdit, SCI_SETMARGINWIDTHN, 0, width);
-    } // SCN_UPDATEUI
+      resizeMarginEdit(hEdit);
+      return 0;
+    }
     
     if (nmhdr->code == SCN_MODIFIED) {      
       wchar_t title[MAX_PATH + 16];
@@ -162,27 +157,11 @@ int WINAPI wWinMain(_In_ HINSTANCE hInst, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ i
   HMODULE hScintilla = LoadLibraryW(L"Scintilla.dll");
   if (hScintilla == nullptr) return -1;
 
-  hEdit = CreateWindowExW(
-    0,
-    L"Scintilla",
-    L"",
-    WS_CHILD | WS_VISIBLE | WS_TABSTOP | WS_CLIPCHILDREN,
-    0, 0,
-    0, 0,
-    hMain,
-    nullptr,
-    hInst,
-    nullptr
-  ); if (hEdit == nullptr) return -1;
+  hEdit = makeEdit(hMain, hInst);
+  if (hEdit == nullptr) return -1;
 
-  SendMessageW(hEdit, SCI_SETMARGINTYPEN, 0, SC_MARGIN_NUMBER);
-  SendMessageW(hEdit, SCI_SETMARGINWIDTHN, 0, 50);
-  SendMessageW(hEdit, SCI_STYLESETSIZE, STYLE_DEFAULT, 12);
-  SendMessageW(hEdit, SCI_SETTABWIDTH, 2, 0);
-  SendMessageW(hEdit, SCI_SETUSETABS, FALSE, 0);
-  // WではなくAを使うのはScintillaの仕様・文字列にＬはつけないことに注意
-  SendMessageA(hEdit, SCI_STYLESETFONT, STYLE_DEFAULT, (LPARAM)"Consolas");
-
+  optEdit(hEdit);
+  
   ShowWindow(hMain, nCmdShow);
   SetFocus(hEdit);
   
