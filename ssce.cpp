@@ -11,7 +11,6 @@
 #include <commdlg.h>
 #include "Scintilla.h"
 #include "edit.h"
-#include "mainwin.h"
 
 #define IDM_OPEN    1
 #define IDM_SAVE    2
@@ -134,14 +133,26 @@ LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 int WINAPI wWinMain(_In_ HINSTANCE hInst, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int nCmdShow) {
   SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
 
+  const wchar_t CLASS_NAME[] = L"ssce";
+
   WNDCLASSW wc = {};
   wc.lpfnWndProc = wndProc;
   wc.hInstance = hInst;
-  wc.lpszClassName = L"ssce";
+  wc.lpszClassName = CLASS_NAME;
   if (!RegisterClassW(&wc)) return -1;
 
-  HWND hMain = makeMainWin(hInst);
-  if (hMain == nullptr) return -1;
+  HWND hMain = CreateWindowExW(
+    0,
+    CLASS_NAME,
+    CLASS_NAME,
+    WS_OVERLAPPEDWINDOW,
+    CW_USEDEFAULT, CW_USEDEFAULT,
+    CW_USEDEFAULT, CW_USEDEFAULT,
+    nullptr,
+    nullptr,
+    hInst,
+    nullptr
+  ); if (hMain == nullptr) return -1;
 
   HMODULE hScintilla = LoadLibraryW(L"Scintilla.dll");
   if (hScintilla == nullptr) return -1;

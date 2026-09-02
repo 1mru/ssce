@@ -1,5 +1,5 @@
-#ifndef EDITOR_H
-#define EDITOR_H
+#ifndef EDIT_H
+#define EDIT_H
 
 #include <windows.h>
 #include "Scintilla.h"
