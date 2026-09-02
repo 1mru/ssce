@@ -6,14 +6,15 @@
 #define _WIN32_WINNT 0x0A00  // DPI awareness
 #define WIN32_LEAN_AND_MEAN
 
+#include <fstream>
 #include <windows.h>
+#include <commdlg.h>
 #include "Scintilla.h"
 
 #define IDM_OPEN    1
 #define IDM_SAVE    2
 #define IDM_QUIT    4
 #define IDM_SAVEAS  3
-
 
 HWND hEdit = nullptr;
 
@@ -53,7 +54,19 @@ LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
   
   if (uMsg == WM_COMMAND) {
     if (LOWORD(wParam) == IDM_OPEN) {
-      MessageBoxW(hwnd, L"Open", L"Open operation", MB_OK);
+      wchar_t path[MAX_PATH] = {};
+      OPENFILENAMEW ofn = {};
+      ofn.lStructSize = sizeof(ofn);
+      ofn.hwndOwner = hwnd;
+      ofn.lpstrFile = path;
+      ofn.nMaxFile = MAX_PATH;
+      ofn.lpstrFilter = L"All Files (*.*)\0*.*\0";
+      ofn.Flags = OFN_FILEMUSTEXIST;
+      
+      if (!GetOpenFileNameW(&ofn)) return 0;
+      std::ifstream file(path, std::ios::binary);
+      std::string text((std::istreambuf_iterator<char>(file)), {});
+      SendMessageA(hEdit, SCI_SETTEXT, 0, (LPARAM)text.c_str());
       return 0;
     }
     if (LOWORD(wParam) == IDM_SAVE) {
