@@ -17,6 +17,7 @@
 #define IDM_SAVEAS  3
 
 HWND hEdit = nullptr;
+wchar_t path[MAX_PATH] = {};
 
 LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
   if (uMsg == WM_DESTROY) {
@@ -33,9 +34,9 @@ LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     NMHDR* nmhdr = reinterpret_cast<NMHDR*>(lParam);
     if (nmhdr->hwndFrom != hEdit) return 0;
     
-    if (nmhdr->code == SCN_UPDATEUI) { // Try SCN_MODIFIED as well
+    if (nmhdr->code == SCN_UPDATEUI) {
       int lines = SendMessageW(hEdit, SCI_GETLINECOUNT, 0, 0);
-      int digit = SendMessageW(hEdit, SCI_TEXTWIDTH, STYLE_LINENUMBER, (LPARAM)"9");
+      int digit = SendMessageA(hEdit, SCI_TEXTWIDTH, STYLE_LINENUMBER, (LPARAM)"9");
       int width = 0;
       
       // (n + 1) * digit for buffer space
@@ -49,12 +50,16 @@ LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
       SendMessageW(hEdit, SCI_SETMARGINWIDTHN, 0, width);
     } // SCN_UPDATEUI
     
+    if (nmhdr->code == SCN_MODIFIED) {      
+      wchar_t title[MAX_PATH + 16];
+      wsprintfW(title, L"%s * - ssce", path);
+      SetWindowTextW(hwnd, title);
+    }
     return 0;
   } // WM_NOTIFY
   
   if (uMsg == WM_COMMAND) {
-    if (LOWORD(wParam) == IDM_OPEN) {
-      wchar_t path[MAX_PATH] = {};
+    if (LOWORD(wParam) == IDM_OPEN) {      
       OPENFILENAMEW ofn = {};
       ofn.lStructSize = sizeof(ofn);
       ofn.hwndOwner = hwnd;
@@ -62,26 +67,69 @@ LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
       ofn.nMaxFile = MAX_PATH;
       ofn.lpstrFilter = L"All Files (*.*)\0*.*\0";
       ofn.Flags = OFN_FILEMUSTEXIST;
-      
       if (!GetOpenFileNameW(&ofn)) return 0;
+      
       std::ifstream file(path, std::ios::binary);
+      if (!file) return 0;
+      
       std::string text((std::istreambuf_iterator<char>(file)), {});
       SendMessageA(hEdit, SCI_SETTEXT, 0, (LPARAM)text.c_str());
+      
+      SetWindowTextW(hwnd, path);
       return 0;
-    }
+    } // IDM_OPEN
+    
     if (LOWORD(wParam) == IDM_SAVE) {
-      MessageBoxW(hwnd, L"Save", L"Save operation", MB_OK);
+      if (!path[0]) {
+        SendMessageW(hwnd, WM_COMMAND, IDM_SAVEAS, 0);
+        return 0;
+      }
+      
+      int length = SendMessageA(hEdit, SCI_GETTEXTLENGTH, 0, 0);
+      std::string text(length + 1, '\0');
+      SendMessageA(hEdit, SCI_GETTEXT, length + 1, (LPARAM)text.data());
+      
+      std::ofstream file(path, std::ios::binary);
+      if (!file) return 0;
+      
+      file.write(text.data(), length);
+      
+      SendMessageA(hEdit, SCI_SETSAVEPOINT, 0, 0);
+      SetWindowTextW(hwnd, path);
       return 0;
-    }
-    if (LOWORD(wParam) == IDM_SAVEAS) {
-      MessageBoxW(hwnd, L"Save As", L"Save As operation", MB_OK);
+    } // IDM_SAVE
+    
+    if (LOWORD(wParam) == IDM_SAVEAS) {    
+      OPENFILENAMEW ofn = {};
+      ofn.lStructSize = sizeof(ofn);
+      ofn.hwndOwner = hwnd;
+      ofn.lpstrFile = path;
+      ofn.nMaxFile = MAX_PATH;
+      ofn.lpstrFilter = L"All Files (*.*)\0*.*\0";
+      ofn.Flags = OFN_OVERWRITEPROMPT;
+    
+      if (!GetSaveFileNameW(&ofn)) return 0;
+    
+      int length = SendMessageA(hEdit, SCI_GETTEXTLENGTH, 0, 0);
+      std::string text(length + 1, '\0');
+      SendMessageA(hEdit, SCI_GETTEXT, length + 1, (LPARAM)text.data());
+    
+      std::ofstream file(path, std::ios::binary);
+      if (!file) return 0;
+    
+      file.write(text.data(), length);
+    
+      SendMessageA(hEdit, SCI_SETSAVEPOINT, 0, 0);
+      SetWindowTextW(hwnd, path);
       return 0;
-    }
+    } // IDM_SAVEAS
+    
     if (LOWORD(wParam) == IDM_QUIT) {
       DestroyWindow(hwnd);
       return 0;
     }
   }
+  
   return DefWindowProcW(hwnd, uMsg, wParam, lParam);
 }  // wndProc
 
