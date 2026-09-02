@@ -9,7 +9,7 @@
 #include <fstream>
 #include <windows.h>
 #include <commdlg.h>
-#include "../include/Scintilla.h"
+#include "Scintilla.h"
 
 #define IDM_OPEN    1
 #define IDM_SAVE    2

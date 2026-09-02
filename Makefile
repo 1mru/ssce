@@ -1,17 +1,14 @@
 CXX = g++
 FLG = -Wall -Wextra -O3 -std=c++23 -mwindows -municode
-SRC = src/*.cpp
-HIT = bin/ssce.exe
+SRC = ssce.cpp
+HIT = ssce
 
-all: test
+all: $(HIT)
 
 $(HIT): $(SRC)
 		$(CXX) $(SRC) -o $(HIT) $(FLG)
 
-test: $(HIT)
-		$(HIT)
-
 clean:
 	rm -f $(HIT)
 
-.PHONY: $(HIT) test clean
+.PHONY: $(HIT) clean
