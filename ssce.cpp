@@ -1,41 +1,52 @@
-// ssce  - Simple source code editor
-// １．とにかくスピード重視
-// ２．Keep it Simple, Stupid
-// ３．必要十分のコメントを書く
+/* ssce - simple source code editor
+ * See LICENSE.txt for copyright and license details.
+ * 
+ * ssceは、Windows向けに開発された高速で軽量なテキストエディタです。
+ * Win32 APIを直接利用し、Scintillaを編集コンポーネントとして使用
+ * することによって、起動時間の短縮および操作性の向上を目指します。
+ */
 
-#define _WIN32_WINNT 0x0A00  // DPI awareness
-#define WIN32_LEAN_AND_MEAN
+#define _WIN32_WINNT 0x0A00  // 解像度をユーザの画面に合わせる
+#define WIN32_LEAN_AND_MEAN　// Win32 APIの不要な部分を取り除く
 
-#include <fstream>
-#include <windows.h>
-#include <commdlg.h>
-#include "Scintilla.h"
+#include <fstream>　// ファイル操作（標準ライブラリ）
+#include <windows.h>　// Win32 API
+#include <commdlg.h> // ダイアログボックス（「ファイル」→「開く」のダイアログなど） 
+#include "Scintilla.h" // Scintillaコンポーネント
 
-#define IDM_OPEN      101
-#define IDM_SAVE      102
-#define IDM_QUIT      104
-#define IDM_SAVEAS    103
-#define IDM_UNDO      105
-#define IDM_CUT       106
-#define IDM_COPY      107
-#define IDM_PASTE     108
-#define IDM_SELECTALL 109
+/* ファイルメニューのマクロ　*/
+#define IDM_OPEN      101 // 開く
+#define IDM_SAVE      102 // 保存
+#define IDM_SAVEAS    103 // 名前をつけて保存
+#define IDM_QUIT      104 // 終了
 
-HWND hEdit = nullptr;
-wchar_t path[MAX_PATH] = {};
+/* 編集メニューのマクロ */
+#define IDM_UNDO      105 // 元に戻す
+#define IDM_CUT       106 // 切り取り
+#define IDM_COPY      107 // コピー
+#define IDM_PASTE     108 // 貼り付け
+#define IDM_SELECTALL 109 // すべて選択
 
+/* （注）グローバル変数の宣言はできる限り避ける */
+/* グローバル変数 */
+HWND hEdit = nullptr; // wndProcの多くの処理で必要
+wchar_t path[MAX_PATH] = {}; // ファイルを保存する時の処理で必要
+
+/* メインウィンドウのコールバック関数。wWinMainで直接呼び出すことはないが、
+ * Windowsが必要な時に自動的に呼び出す。wWinMainでウィンドウクラスを
+ * 登録する際に必要なので、宣言はwWinMainの前に書く。 */
 LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
-  if (uMsg == WM_DESTROY) {
+  switch (uMsg) {
+    
+  case WM_DESTROY:
     PostQuitMessage(0);
     return 0;
-  }
   
-  if (uMsg == WM_SIZE) {
+  case WM_SIZE:
     MoveWindow(hEdit, 0, 0, LOWORD(lParam), HIWORD(lParam), TRUE);
     return 0;
-  }
   
-  if (uMsg == WM_NOTIFY) {
+  case WM_NOTIFY: {
     NMHDR* nmhdr = reinterpret_cast<NMHDR*>(lParam);
     if (nmhdr->hwndFrom != hEdit) return 0;
     
@@ -59,8 +70,10 @@ LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     return 0;
   } // WM_NOTIFY
   
-  if (uMsg == WM_COMMAND) {
-    if (LOWORD(wParam) == IDM_OPEN) {      
+  case WM_COMMAND: {
+    switch (LOWORD(wParam)) {
+      
+    case IDM_OPEN: {     
       OPENFILENAMEW ofn = {};
       ofn.lStructSize = sizeof(ofn);
       ofn.hwndOwner = hwnd;
@@ -82,7 +95,7 @@ LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
       return 0;
     } // IDM_OPEN
     
-    if (LOWORD(wParam) == IDM_SAVE) {
+    case IDM_SAVE: {
       if (!path[0]) {
         SendMessageW(hwnd, WM_COMMAND, IDM_SAVEAS, 0);
         return 0;
@@ -104,7 +117,7 @@ LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
       return 0;
     } // IDM_SAVE
     
-    if (LOWORD(wParam) == IDM_SAVEAS) {    
+    case IDM_SAVEAS: {    
       OPENFILENAMEW ofn = {};
       ofn.lStructSize = sizeof(ofn);
       ofn.hwndOwner = hwnd;
@@ -131,7 +144,7 @@ LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
       return 0;
     } // IDM_SAVEAS
     
-    if (LOWORD(wParam) == IDM_QUIT) {
+    case IDM_QUIT: {
       if (SendMessageW(hEdit, SCI_GETMODIFY, 0, 0)) {
         int result = MessageBoxW(
           hwnd,
@@ -146,32 +159,32 @@ LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
       return 0;
     }
     
-    if (LOWORD(wParam) == IDM_UNDO) {
+    case IDM_UNDO:
       SendMessageW(hEdit, SCI_UNDO, 0, 0);
       return 0;
-    }
   
-    if (LOWORD(wParam) == IDM_CUT) {
+    case IDM_CUT:
       SendMessageW(hEdit, SCI_CUT, 0, 0);
       return 0;
-    }
     
-    if (LOWORD(wParam) == IDM_COPY) {
+    case IDM_COPY:
       SendMessageW(hEdit, SCI_COPY, 0, 0);
       return 0;
-    }
     
-    if (LOWORD(wParam) == IDM_PASTE) {
+    case IDM_PASTE:
       SendMessageW(hEdit, SCI_PASTE, 0, 0);
       return 0;
-    }
     
-    if (LOWORD(wParam) == IDM_SELECTALL) {
+    case IDM_SELECTALL:
       SendMessageW(hEdit, SCI_SELECTALL, 0, 0);
       return 0;
-    }
-  }
     
+    } // switch (LOWORD(wParam))
+  
+  } // WM_COMMAND
+  
+  } // switch (uMsg)
+  
   return DefWindowProcW(hwnd, uMsg, wParam, lParam);
 }  // wndProc
 
