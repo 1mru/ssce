@@ -11,10 +11,15 @@
 #include <commdlg.h>
 #include "Scintilla.h"
 
-#define IDM_OPEN    1
-#define IDM_SAVE    2
-#define IDM_QUIT    4
-#define IDM_SAVEAS  3
+#define IDM_OPEN      101
+#define IDM_SAVE      102
+#define IDM_QUIT      104
+#define IDM_SAVEAS    103
+#define IDM_UNDO      105
+#define IDM_CUT       106
+#define IDM_COPY      107
+#define IDM_PASTE     108
+#define IDM_SELECTALL 109
 
 HWND hEdit = nullptr;
 wchar_t path[MAX_PATH] = {};
@@ -127,11 +132,46 @@ LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     } // IDM_SAVEAS
     
     if (LOWORD(wParam) == IDM_QUIT) {
+      if (SendMessageW(hEdit, SCI_GETMODIFY, 0, 0)) {
+        int result = MessageBoxW(
+          hwnd,
+          L"保存されていない変更があります。\n終了しますか？",
+          L"ssce",
+          MB_YESNO | MB_ICONWARNING
+        );
+        if (result != IDYES) return 0;
+      }
+
       DestroyWindow(hwnd);
       return 0;
     }
-  }
+    
+    if (LOWORD(wParam) == IDM_UNDO) {
+      SendMessageW(hEdit, SCI_UNDO, 0, 0);
+      return 0;
+    }
   
+    if (LOWORD(wParam) == IDM_CUT) {
+      SendMessageW(hEdit, SCI_CUT, 0, 0);
+      return 0;
+    }
+    
+    if (LOWORD(wParam) == IDM_COPY) {
+      SendMessageW(hEdit, SCI_COPY, 0, 0);
+      return 0;
+    }
+    
+    if (LOWORD(wParam) == IDM_PASTE) {
+      SendMessageW(hEdit, SCI_PASTE, 0, 0);
+      return 0;
+    }
+    
+    if (LOWORD(wParam) == IDM_SELECTALL) {
+      SendMessageW(hEdit, SCI_SELECTALL, 0, 0);
+      return 0;
+    }
+  }
+    
   return DefWindowProcW(hwnd, uMsg, wParam, lParam);
 }  // wndProc
 
@@ -146,6 +186,25 @@ int WINAPI wWinMain(_In_ HINSTANCE hInst, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ i
   wc.lpszClassName = CLASS_NAME;
   if (!RegisterClassW(&wc)) return -1;
 
+  HMENU hFileMenu = CreatePopupMenu();
+  if (!AppendMenuW(hFileMenu, MF_STRING, IDM_OPEN, L"開く")) return -1;
+  if (!AppendMenuW(hFileMenu, MF_STRING, IDM_SAVE, L"保存")) return -1;
+  if (!AppendMenuW(hFileMenu, MF_STRING, IDM_SAVEAS, L"名前を付けて保存")) return -1;
+  if (!AppendMenuW(hFileMenu, MF_SEPARATOR, 0, nullptr)) return -1;
+  if (!AppendMenuW(hFileMenu, MF_STRING, IDM_QUIT, L"終了")) return -1;
+  
+  HMENU hEditMenu = CreatePopupMenu();
+  if (!AppendMenuW(hEditMenu, MF_STRING, IDM_UNDO, L"元に戻す")) return -1;
+  if (!AppendMenuW(hEditMenu, MF_SEPARATOR, 0, nullptr)) return -1;
+  if (!AppendMenuW(hEditMenu, MF_STRING, IDM_CUT, L"切り取り")) return -1;
+  if (!AppendMenuW(hEditMenu, MF_STRING, IDM_COPY, L"コピー")) return -1;
+  if (!AppendMenuW(hEditMenu, MF_STRING, IDM_PASTE, L"貼り付け")) return -1;
+  if (!AppendMenuW(hEditMenu, MF_STRING, IDM_SELECTALL, L"すべて選択")) return -1;
+  
+  HMENU hMenu = CreateMenu();
+  if (!AppendMenuW(hMenu, MF_POPUP, (UINT_PTR)hFileMenu, L"ファイル")) return -1;
+  if (!AppendMenuW(hMenu, MF_POPUP, (UINT_PTR)hEditMenu, L"編集")) return -1;
+  
   HWND hMain = CreateWindowExW(
     0,
     CLASS_NAME,
@@ -154,7 +213,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInst, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ i
     CW_USEDEFAULT, CW_USEDEFAULT,
     CW_USEDEFAULT, CW_USEDEFAULT,
     nullptr,
-    nullptr,
+    hMenu,
     hInst,
     nullptr
   ); if (hMain == nullptr) return -1;
