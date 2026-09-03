@@ -1,2 +1,2 @@
 # ssce
-<img width="1423" height="732" alt="image" src="https://github.com/user-attachments/assets/b4f0e415-f4e5-40b5-b052-2f59c91e05b5" />
+<img width="1423" height="732" alt="image" src="https://github.com/user-attachments/assets/3c016b28-e5f4-4dc6-aa3e-c9285b256d23" />
