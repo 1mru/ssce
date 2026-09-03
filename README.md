@@ -13,4 +13,4 @@ ssceはWindowsで動作する高速で軽量なテキストエディタです。
 
 ## ドキュメント
 ソースコードには充実したコメントが書かれています。また、ＡＰＩ・ライブラリのドキュメントや参考にしたウェブページへの外部リンクは
-[Wiki]([https://github.com/1mru/ssce/wiki](https://github.com/1mru/ssce/wiki)に貼ってあります。
+[Wiki](https://github.com/1mru/ssce/wiki)に貼ってあります。
