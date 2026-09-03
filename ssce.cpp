@@ -12,7 +12,10 @@
 #include <fstream> // ファイル操作（標準ライブラリ）
 #include <windows.h> // Win32 API
 #include <commdlg.h> // ダイアログボックス（「ファイル」→「開く」のダイアログなど） 
-#include "Scintilla.h" // Scintillaコンポーネント
+#include "Scintilla.h"
+#include "SciLexer.h"
+#include "ILexer.h"
+#include "Lexilla.h"
 
 /* ファイルメニューのマクロ */
 #define IDM_OPEN      1 // 開く
@@ -238,6 +241,9 @@ int WINAPI wWinMain(_In_ HINSTANCE hInst, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ i
   HMODULE hScintilla = LoadLibraryW(L"Scintilla.dll");
   if (hScintilla == nullptr) return -1;
 
+  HMODULE hLexilla = LoadLibraryW(L"Lexilla.dll");
+  if (hLexilla == nullptr) return -1;
+  
   hEdit = CreateWindowExW(
     0,
     L"Scintilla",
@@ -258,6 +264,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInst, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ i
   SendMessageW(hEdit, SCI_SETUSETABS, FALSE, 0);
   // WではなくAを使うのはScintillaの仕様・文字列にＬはつけないことに注意
   SendMessageA(hEdit, SCI_STYLESETFONT, STYLE_DEFAULT, (LPARAM)"Consolas");
+  
 
   ShowWindow(hMain, nCmdShow);
   SetFocus(hEdit);
