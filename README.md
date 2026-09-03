@@ -12,4 +12,5 @@ ssceはWindowsで動作する高速で軽量なテキストエディタです。
 リポジトリをクローン後、`Makefile`を確認し、`make`（引数なし）を実行してください。バイナリファイルは`bin`に出力されます。
 
 ## ドキュメント
-ソースコードには充実したコメントが書かれています。また、ＡＰＩ・ライブラリのドキュメントや参考にしたウェブページへの外部リンクは[Wiki]([https://github.com/1mru/ssce/wiki](https://github.com/1mru/ssce/wiki/home)に貼ってあります。
+ソースコードには充実したコメントが書かれています。また、ＡＰＩ・ライブラリのドキュメントや参考にしたウェブページへの外部リンクは
+[Wiki]([https://github.com/1mru/ssce/wiki](https://github.com/1mru/ssce/wiki)に貼ってあります。
