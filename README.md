@@ -7,3 +7,6 @@ ssceはWindowsで動作する高速で軽量なテキストエディタです。
 以下のリンクからインストーラをダウンロードし、実行してください。
 
 [Releases](https://github.com/1mru/ssce/releases)
+
+## ビルド
+リポジトリをクローン後、`Makefile`を確認し、`make`（引数なし）を実行してください。バイナリファイルは`bin`に出力されます。
