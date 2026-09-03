@@ -14,18 +14,21 @@
 #include <commdlg.h> // ダイアログボックス（「ファイル」→「開く」のダイアログなど） 
 #include "Scintilla.h" // Scintillaコンポーネント
 
-/* ファイルメニューのマクロ　*/
-#define IDM_OPEN      101 // 開く
-#define IDM_SAVE      102 // 保存
-#define IDM_SAVEAS    103 // 名前をつけて保存
-#define IDM_QUIT      104 // 終了
+/* ファイルメニューのマクロ */
+#define IDM_OPEN      1 // 開く
+#define IDM_SAVE      2 // 保存
+#define IDM_SAVEAS    3 // 名前をつけて保存
+#define IDM_QUIT      4 // 終了
 
-/* 編集メニューのマクロ */
-#define IDM_UNDO      105 // 元に戻す
-#define IDM_CUT       106 // 切り取り
-#define IDM_COPY      107 // コピー
-#define IDM_PASTE     108 // 貼り付け
-#define IDM_SELECTALL 109 // すべて選択
+/* 編集メニューのマク*/
+#define IDM_UNDO      5 // 元に戻す
+#define IDM_CUT       6 // 切り取り
+#define IDM_COPY      7 // コピー
+#define IDM_PASTE     8 // 貼り付け
+#define IDM_SELECTALL 9 // すべて選択
+
+/* アプリのアイコン */
+#define IDI_ICON1 101
 
 /* （注）グローバル変数の宣言はできる限り避ける */
 /* グローバル変数 */
@@ -196,6 +199,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInst, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ i
   WNDCLASSW wc = {};
   wc.lpfnWndProc = wndProc;
   wc.hInstance = hInst;
+  wc.hIcon = LoadIconW(hInst, MAKEINTRESOURCEW(IDI_ICON1));
   wc.lpszClassName = CLASS_NAME;
   if (!RegisterClassW(&wc)) return -1;
 
