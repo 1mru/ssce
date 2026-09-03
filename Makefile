@@ -2,23 +2,33 @@
 # See LICENSE.txt for copyright and license details.
 
 CXX = g++
-WINDRES = windres
 
-FLG = -Wall -Wextra -O3 -std=c++23 -mwindows -municode
-SRC = ssce.cpp
-RES = ssce.rc
-OBJ = ssce_res.o
-HIT = ssce.exe
+CXXFLAGS = -DNDEBUG \
+           -Wall \
+           -Wextra \
+           -O3 \
+           -std=c++23 \
+           -Iscintilla/include \
+           -Ilexilla/include
 
-all: $(HIT)
+LDFLAGS = -mwindows \
+          -municode
 
-$(HIT): $(SRC) $(OBJ)
-		$(CXX) $(SRC) $(OBJ) -o $(HIT) $(FLG)
+LIBS = -Lscintilla/bin \
+       -Llexilla/bin \
+       -lscintilla \
+       -llexilla \
+       -limm32 \
+       -lole32 \
+       -loleaut32 \
+       -luuid
 
-$(OBJ): $(RES)
-		$(WINDRES) $(RES) -o $(OBJ)
+SRC = $(wildcard src/*.cpp)
+OUT = bin/ssce.exe
+
+$(OUT): $(SRC)
+	mkdir -p bin
+	$(CXX) $(SRC) $(CXXFLAGS) $(LDFLAGS) $(LIBS) -o $(OUT)
 
 clean:
-		rm -f $(HIT) $(OBJ)
-
-.PHONY: all clean
+	rm -f $(OUT)
