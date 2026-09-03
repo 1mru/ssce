@@ -6,11 +6,11 @@
  * することによって、起動時間の短縮および操作性の向上を目指します。
  */
 
-#define _WIN32_WINNT 0x0A00  // 解像度をユーザの画面に合わせる
-#define WIN32_LEAN_AND_MEAN　// Win32 APIの不要な部分を取り除く
+#define _WIN32_WINNT 0x0A00 // 解像度をユーザの画面に合わせる
+#define WIN32_LEAN_AND_MEAN // Win32 APIの不要な部分を取り除く
 
-#include <fstream>　// ファイル操作（標準ライブラリ）
-#include <windows.h>　// Win32 API
+#include <fstream> // ファイル操作（標準ライブラリ）
+#include <windows.h> // Win32 API
 #include <commdlg.h> // ダイアログボックス（「ファイル」→「開く」のダイアログなど） 
 #include "Scintilla.h" // Scintillaコンポーネント
 
@@ -200,23 +200,23 @@ int WINAPI wWinMain(_In_ HINSTANCE hInst, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ i
   if (!RegisterClassW(&wc)) return -1;
 
   HMENU hFileMenu = CreatePopupMenu();
-  if (!AppendMenuW(hFileMenu, MF_STRING, IDM_OPEN, L"開く")) return -1;
-  if (!AppendMenuW(hFileMenu, MF_STRING, IDM_SAVE, L"保存")) return -1;
-  if (!AppendMenuW(hFileMenu, MF_STRING, IDM_SAVEAS, L"名前を付けて保存")) return -1;
+  if (!AppendMenuW(hFileMenu, MF_STRING, IDM_OPEN, L"開く(&O)\tCtrl+O")) return -1;
+  if (!AppendMenuW(hFileMenu, MF_STRING, IDM_SAVE, L"保存(&S)\tCtrl+S")) return -1;
+  if (!AppendMenuW(hFileMenu, MF_STRING, IDM_SAVEAS, L"名前を付けて保存(&A)\tCtrl+Shift+S")) return -1;
   if (!AppendMenuW(hFileMenu, MF_SEPARATOR, 0, nullptr)) return -1;
-  if (!AppendMenuW(hFileMenu, MF_STRING, IDM_QUIT, L"終了")) return -1;
+  if (!AppendMenuW(hFileMenu, MF_STRING, IDM_QUIT, L"終了(&X)\tCtrl+Q")) return -1;
   
   HMENU hEditMenu = CreatePopupMenu();
-  if (!AppendMenuW(hEditMenu, MF_STRING, IDM_UNDO, L"元に戻す")) return -1;
+  if (!AppendMenuW(hEditMenu, MF_STRING, IDM_UNDO, L"元に戻す(&U)\tCtrl+Z")) return -1;
   if (!AppendMenuW(hEditMenu, MF_SEPARATOR, 0, nullptr)) return -1;
-  if (!AppendMenuW(hEditMenu, MF_STRING, IDM_CUT, L"切り取り")) return -1;
-  if (!AppendMenuW(hEditMenu, MF_STRING, IDM_COPY, L"コピー")) return -1;
-  if (!AppendMenuW(hEditMenu, MF_STRING, IDM_PASTE, L"貼り付け")) return -1;
-  if (!AppendMenuW(hEditMenu, MF_STRING, IDM_SELECTALL, L"すべて選択")) return -1;
+  if (!AppendMenuW(hEditMenu, MF_STRING, IDM_CUT, L"切り取り(&T)\tCtrl+X")) return -1;
+  if (!AppendMenuW(hEditMenu, MF_STRING, IDM_COPY, L"コピー(&C)\tCtrl+C")) return -1;
+  if (!AppendMenuW(hEditMenu, MF_STRING, IDM_PASTE, L"貼り付け(&P)\tCtrl+V")) return -1;
+  if (!AppendMenuW(hEditMenu, MF_STRING, IDM_SELECTALL, L"すべて選択(&S)\tCtrl+A")) return -1;
   
   HMENU hMenu = CreateMenu();
-  if (!AppendMenuW(hMenu, MF_POPUP, (UINT_PTR)hFileMenu, L"ファイル")) return -1;
-  if (!AppendMenuW(hMenu, MF_POPUP, (UINT_PTR)hEditMenu, L"編集")) return -1;
+  if (!AppendMenuW(hMenu, MF_POPUP, (UINT_PTR)hFileMenu, L"ファイル(&F)")) return -1;
+  if (!AppendMenuW(hMenu, MF_POPUP, (UINT_PTR)hEditMenu, L"編集(&E)")) return -1;
   
   HWND hMain = CreateWindowExW(
     0,
@@ -259,10 +259,18 @@ int WINAPI wWinMain(_In_ HINSTANCE hInst, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ i
   SetFocus(hEdit);
   
   ACCEL accel[] = {
+    /* ファイルメニュー */
     { FVIRTKEY | FCONTROL, 'O', IDM_OPEN },
     { FVIRTKEY | FCONTROL, 'S', IDM_SAVE },
     { FVIRTKEY | FCONTROL | FSHIFT, 'S', IDM_SAVEAS },
-    { FVIRTKEY | FCONTROL, 'Q', IDM_QUIT }
+    { FVIRTKEY | FCONTROL, 'Q', IDM_QUIT },
+
+    /* 編集メニュー */
+    { FVIRTKEY | FCONTROL, 'Z', IDM_UNDO },
+    { FVIRTKEY | FCONTROL, 'X', IDM_CUT },
+    { FVIRTKEY | FCONTROL, 'C', IDM_COPY },
+    { FVIRTKEY | FCONTROL, 'V', IDM_PASTE },
+    { FVIRTKEY | FCONTROL, 'A', IDM_SELECTALL },
   };
   HACCEL hAccel = CreateAcceleratorTableW(accel, ARRAYSIZE(accel));
 
