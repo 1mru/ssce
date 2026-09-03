@@ -1,5 +1,5 @@
 # ssce
-[![Latest Release](https://img.shields.io/github/v/release/1mru/ssce)](https://github.com/1mru/ssce/releases/latest)
+![GitHub License](https://img.shields.io/github/license/1mru/ssce)
 
 ssceはWindowsで動作する高速で軽量なテキストエディタです。
 
