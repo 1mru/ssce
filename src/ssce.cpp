@@ -111,6 +111,17 @@ LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
       if (ext == L".cpp" || ext == L".h" || ext == L".cc" || ext == L".hpp") {
         ILexer5 *lexer = CreateLexer("cpp");
         SendMessageA(hEdit, SCI_SETILEXER, 0, (LPARAM)lexer);
+        
+        SendMessageA(hEdit, SCI_SETKEYWORDS, 0,
+             (LPARAM)"alignas alignof auto bool break case catch char class "
+                     "const constexpr continue default delete do double else "
+                     "enum explicit export extern false float for friend goto "
+                     "if inline int long mutable namespace new noexcept nullptr "
+                     "operator private protected public register reinterpret_cast "
+                     "return short signed sizeof static static_assert static_cast "
+                     "struct switch template this throw true try typedef "
+                     "typename union unsigned using virtual void volatile wchar_t "
+                     "while");
       }
 
       std::string text((std::istreambuf_iterator<char>(file)), {});
@@ -285,7 +296,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInst, _In_opt_ HINSTANCE, _In_ PWSTR,
   SendMessageW(hEdit, SCI_SETUSETABS, FALSE, 0);
   // WではなくAを使うのはScintillaの仕様・文字列にＬはつけないことに注意
   SendMessageA(hEdit, SCI_STYLESETFONT, STYLE_DEFAULT, (LPARAM) "Consolas");
-  SendMessageW(hEdit, SCI_STYLESETFORE, STYLE_LINENUMBER, RGB(130, 130, 130));
+  SendMessageW(hEdit, SCI_STYLESETFORE, STYLE_LINENUMBER, RGB(100, 100, 100));
   SendMessageW(hEdit, SCI_STYLESETBACK, STYLE_LINENUMBER, RGB(248, 248, 246));
 
   SendMessageW(hEdit, SCI_STYLESETBACK, STYLE_DEFAULT, RGB(255, 255, 255));
