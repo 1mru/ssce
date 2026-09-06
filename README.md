@@ -3,6 +3,8 @@
 ![GitHub License](https://img.shields.io/github/license/1mru/ssce)
 ![GitHub last commit](https://img.shields.io/github/last-commit/1mru/ssce)
 ![GitHub commit activity](https://img.shields.io/github/commit-activity/w/1mru/ssce)
+![GitHub Release](https://img.shields.io/github/v/release/1mru/ssce)
+
 
 ssceは、Windowsで動作する高速・軽量なテキストエディタです。
 
