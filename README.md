@@ -8,7 +8,7 @@
 
 ssceは、Windowsで動作する高速・軽量なテキストエディタです。
 
-<img width="1423" height="732" alt="ssceのスクリーンショット" src="https://github.com/user-attachments/assets/35bea297-c154-4628-be45-b1a93313e79b" />
+<img width="1423" height="732" alt="image" src="https://github.com/user-attachments/assets/2ee33efe-8bb7-4db5-a784-b76d6b10e41c" />
 
 ## ダウンロード
 
