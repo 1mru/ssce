@@ -25,6 +25,7 @@ void configureEditor(HWND hEdit) {
   SendMessageW(hEdit, SCI_SETEDGECOLOUR, RGB(225, 225, 220), 0);
   SendMessageW(hEdit, SCI_SETUNDOCOLLECTION, TRUE, 0);
   SendMessageW(hEdit, SCI_SETLAYOUTCACHE, SC_CACHE_PAGE, 0);
+  SendMessageW(hEdit, SCI_USEPOPUP, 0, 0);
   SendMessageW(hEdit, SCI_SETADDITIONALSELECTIONTYPING, TRUE, 0);
 
   SendMessageW(hEdit, SCI_STYLESETFORE, STYLE_LINENUMBER, RGB(100, 100, 100));
