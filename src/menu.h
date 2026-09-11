@@ -17,5 +17,6 @@
 #define IDM_SELECTALL 9  // すべて選択
 
 HMENU createMenu();
+HMENU createContextMenu();
 
 #endif  // MENU_H

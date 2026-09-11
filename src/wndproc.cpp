@@ -2,7 +2,7 @@
 
 // #include <commdlg.h>  //
 // ダイアログボックス（「ファイル」→「開く」のダイアログなど）
-#include <windows.h>  // Win32 API
+#include <windowsx.h>  // for GET_X_LPARAM/GET_Y_LPARAM
 
 #include <filesystem>
 #include <fstream>  // ファイル操作（標準ライブラリ）
@@ -29,11 +29,30 @@ LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     case WM_SIZE:
       MoveWindow(hEdit, 0, 0, LOWORD(lParam), HIWORD(lParam), TRUE);
       return 0;
-    case WM_ACTIVATE:
+    case WM_CONTEXTMENU: {
+      if ((HWND)wParam == hEdit) {
+        HMENU hCtx = createContextMenu();
+        POINT pt = {GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)};
+        // If lParam is –1 (keyboard invoked), use caret position
+        if (pt.x == -1 && pt.y == -1) {
+          // Use current cursor position as fallback
+          POINT cursor;
+          if (GetCursorPos(&cursor)) {
+            pt = cursor;
+          }
+        }
+        TrackPopupMenu(hCtx, TPM_LEFTALIGN | TPM_RIGHTBUTTON, pt.x, pt.y, 0,
+                       hwnd, nullptr);
+        DestroyMenu(hCtx);
+        return 0;
+      }
+      break;
+    }
+    case WM_ACTIVATE: {
       /* ウィンドウのフォーカス設定 */
       if (LOWORD(wParam) != WA_INACTIVE) SetFocus(hEdit);
       return 0;
-
+    }
     case WM_NOTIFY: {
       NMHDR *nmhdr = reinterpret_cast<NMHDR *>(lParam);
       if (nmhdr->hwndFrom != hEdit) return 0;
