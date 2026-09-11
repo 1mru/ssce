@@ -13,7 +13,8 @@ void configureEditor(HWND hEdit) {
   SendMessageW(hEdit, SCI_STYLESETSIZE, STYLE_DEFAULT, 13);
   SendMessageW(hEdit, SCI_SETTABWIDTH, 2, 0);
   SendMessageW(hEdit, SCI_SETUSETABS, FALSE, 0);
-  SendMessageA(hEdit, SCI_STYLESETFONT, STYLE_DEFAULT, (LPARAM) "Cascadia Code");
+  SendMessageA(hEdit, SCI_STYLESETFONT, STYLE_DEFAULT,
+               (LPARAM) "Cascadia Code");
   SendMessageA(hEdit, SCI_STYLECLEARALL, 0, 0);
   SendMessageW(hEdit, SCI_SETCARETLINEVISIBLE, TRUE, 0);
   SendMessageW(hEdit, SCI_SETCARETLINEBACK, RGB(248, 248, 242), 0);
@@ -25,7 +26,7 @@ void configureEditor(HWND hEdit) {
   SendMessageW(hEdit, SCI_SETUNDOCOLLECTION, TRUE, 0);
   SendMessageW(hEdit, SCI_SETLAYOUTCACHE, SC_CACHE_PAGE, 0);
   SendMessageW(hEdit, SCI_SETADDITIONALSELECTIONTYPING, TRUE, 0);
-  
+
   SendMessageW(hEdit, SCI_STYLESETFORE, STYLE_LINENUMBER, RGB(100, 100, 100));
   SendMessageW(hEdit, SCI_STYLESETBACK, STYLE_LINENUMBER, RGB(248, 248, 246));
   SendMessageW(hEdit, SCI_STYLESETBACK, STYLE_DEFAULT, RGB(255, 255, 255));

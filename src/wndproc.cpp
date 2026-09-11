@@ -29,6 +29,10 @@ LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     case WM_SIZE:
       MoveWindow(hEdit, 0, 0, LOWORD(lParam), HIWORD(lParam), TRUE);
       return 0;
+    case WM_ACTIVATE:
+      /* ウィンドウのフォーカス設定 */
+      if (LOWORD(wParam) != WA_INACTIVE) SetFocus(hEdit);
+      return 0;
 
     case WM_NOTIFY: {
       NMHDR *nmhdr = reinterpret_cast<NMHDR *>(lParam);
