@@ -8,6 +8,7 @@
 
 ACCEL accel[] = {
     /* ファイルメニュー */
+    {FVIRTKEY | FCONTROL, 'N', IDM_NEW},
     {FVIRTKEY | FCONTROL, 'O', IDM_OPEN},
     {FVIRTKEY | FCONTROL, 'S', IDM_SAVE},
     {FVIRTKEY | FCONTROL | FSHIFT, 'S', IDM_SAVEAS},

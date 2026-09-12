@@ -102,6 +102,15 @@ LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 
     case WM_COMMAND: {
       switch (LOWORD(wParam)) {
+        case IDM_NEW:
+          if (!confirmSaveChanges(hwnd)) return 0;
+
+          path[0] = L'\0';
+          SendMessageA(hEdit, SCI_SETTEXT, 0, (LPARAM) "");
+          SendMessageA(hEdit, SCI_SETSAVEPOINT, 0, 0);
+          SetWindowTextW(hwnd, L"ssce");
+          return 0;
+
         case IDM_OPEN: {
           if (!confirmSaveChanges(hwnd)) return 0;
 

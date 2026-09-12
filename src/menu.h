@@ -16,6 +16,7 @@
 #define IDM_PASTE 8      // 貼り付け
 #define IDM_SELECTALL 9  // すべて選択
 #define IDM_REDO 10      // やり直し
+#define IDM_NEW 11       // 新規作成
 
 HMENU createMenu();
 HMENU createContextMenu();

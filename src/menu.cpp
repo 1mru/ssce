@@ -16,6 +16,7 @@ HMENU createContextMenu() {
 
 HMENU createMenu() {
   HMENU hFileMenu = CreatePopupMenu();
+  AppendMenuW(hFileMenu, MF_STRING, IDM_NEW, L"新規作成(&N)\tCtrl+N");
   AppendMenuW(hFileMenu, MF_STRING, IDM_OPEN, L"開く(&O)\tCtrl+O");
   AppendMenuW(hFileMenu, MF_STRING, IDM_SAVE, L"保存(&S)\tCtrl+S");
   AppendMenuW(hFileMenu, MF_STRING, IDM_SAVEAS,
