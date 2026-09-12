@@ -21,7 +21,7 @@ void configureEditor(HWND hEdit) {
   SendMessageW(hEdit, SCI_SETCARETWIDTH, 2, 0);
   SendMessageW(hEdit, SCI_SETCARETFORE, RGB(40, 40, 40), 0);
   SendMessageW(hEdit, SCI_SETEDGEMODE, EDGE_LINE, 0);
-  SendMessageW(hEdit, SCI_SETEDGECOLUMN, 100, 0);
+  // SendMessageW(hEdit, SCI_SETEDGECOLUMN, 100, 0);
   SendMessageW(hEdit, SCI_SETEDGECOLOUR, RGB(225, 225, 220), 0);
   SendMessageW(hEdit, SCI_SETUNDOCOLLECTION, TRUE, 0);
   SendMessageW(hEdit, SCI_SETLAYOUTCACHE, SC_CACHE_PAGE, 0);
