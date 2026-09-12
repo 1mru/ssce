@@ -8,6 +8,8 @@ CXXFLAGS = -DNDEBUG \
            -Wextra \
            -O3 \
            -std=c++23 \
+           -finput-charset=UTF-8 \
+           -fexec-charset=UTF-8 \
            -Iscintilla/include \
            -Ilexilla/include
 
