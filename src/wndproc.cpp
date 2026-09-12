@@ -94,7 +94,8 @@ LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 
       if (nmhdr->code == SCN_MODIFIED) {
         wchar_t title[MAX_PATH + 16];
-        wsprintfW(title, L"%s* - ssce", path);
+        const bool isModified = SendMessageW(hEdit, SCI_GETMODIFY, 0, 0);
+        wsprintfW(title, isModified ? L"%s* - ssce" : L"%s - ssce", path);
         SetWindowTextW(hwnd, title);
       }
       return 0;
