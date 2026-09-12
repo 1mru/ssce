@@ -17,11 +17,28 @@ extern HWND hEdit;
 
 wchar_t path[MAX_PATH] = {};
 
+bool confirmSaveChanges(HWND hwnd) {
+  if (!SendMessageW(hEdit, SCI_GETMODIFY, 0, 0)) return true;
+
+  const int result = MessageBoxW(
+      hwnd, L"変更内容を保存しますか？\n保存しない場合、変更内容は失われます。",
+      L"ssce", MB_YESNOCANCEL | MB_ICONWARNING);
+  if (result == IDCANCEL) return false;
+  if (result == IDNO) return true;
+
+  SendMessageW(hwnd, WM_COMMAND, MAKEWPARAM(IDM_SAVE, 0), 0);
+  return !SendMessageW(hEdit, SCI_GETMODIFY, 0, 0);
+}
+
 /* メインウィンドウのコールバック関数。wWinMainで直接呼び出すことはないが、
  * Windowsが必要な時に自動的に呼び出す。wWinMainでウィンドウクラスを
  * 登録する際に必要なので、宣言はwWinMainの前に書く。 */
 LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
   switch (uMsg) {
+    case WM_CLOSE:
+      SendMessageW(hwnd, WM_COMMAND, MAKEWPARAM(IDM_QUIT, 0), 0);
+      return 0;
+
     case WM_DESTROY:
       PostQuitMessage(0);
       return 0;
@@ -86,20 +103,23 @@ LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     case WM_COMMAND: {
       switch (LOWORD(wParam)) {
         case IDM_OPEN: {
+          if (!confirmSaveChanges(hwnd)) return 0;
+
+          wchar_t selectedPath[MAX_PATH] = {};
           OPENFILENAMEW ofn = {};
           ofn.lStructSize = sizeof(ofn);
           ofn.hwndOwner = hwnd;
-          ofn.lpstrFile = path;
+          ofn.lpstrFile = selectedPath;
           ofn.nMaxFile = MAX_PATH;
           ofn.lpstrFilter = L"All Files (*.*)\0*.*\0";
           ofn.Flags = OFN_FILEMUSTEXIST;
           if (!GetOpenFileNameW(&ofn)) return 0;
 
-          std::ifstream file(path, std::ios::binary);
+          std::ifstream file(selectedPath, std::ios::binary);
           if (!file) return 0;
 
           /* ファイル拡張子を取得 */
-          std::filesystem::path filePath(path);
+          std::filesystem::path filePath(selectedPath);
           std::wstring ext = filePath.extension().wstring();
 
           /* C++ファイルならシンタクスハイライトをつける */
@@ -126,6 +146,7 @@ LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
           }
 
           std::string text((std::istreambuf_iterator<char>(file)), {});
+          wcscpy_s(path, selectedPath);
           SendMessageA(hEdit, SCI_SETTEXT, 0, (LPARAM)text.c_str());
           SendMessageA(hEdit, SCI_SETSAVEPOINT, 0, 0);
           wchar_t title[MAX_PATH + 16];
@@ -184,12 +205,7 @@ LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
         }  // IDM_SAVEAS
 
         case IDM_QUIT: {
-          if (SendMessageW(hEdit, SCI_GETMODIFY, 0, 0)) {
-            int result = MessageBoxW(
-                hwnd, L"保存されていない変更があります。\n終了しますか？",
-                L"ssce", MB_YESNO | MB_ICONWARNING);
-            if (result != IDYES) return 0;
-          }
+          if (!confirmSaveChanges(hwnd)) return 0;
 
           DestroyWindow(hwnd);
           return 0;
