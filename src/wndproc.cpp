@@ -17,6 +17,25 @@ extern HWND hEdit;
 
 wchar_t path[MAX_PATH] = {};
 
+void updateWindowTitle(HWND hwnd) {
+  const bool isModified = SendMessageW(hEdit, SCI_GETMODIFY, 0, 0);
+  wchar_t title[MAX_PATH + 16];
+
+  if (path[0]) {
+    wsprintfW(title, isModified ? L"%s* - ssce" : L"%s - ssce", path);
+  } else {
+    wsprintfW(title, isModified ? L"無題* - ssce" : L"無題 - ssce");
+  }
+
+  SetWindowTextW(hwnd, title);
+}
+
+void showFileError(HWND hwnd, const wchar_t *action, const wchar_t *filePath) {
+  wchar_t message[MAX_PATH + 64];
+  wsprintfW(message, L"ファイルを%sできませんでした。\n%s", action, filePath);
+  MessageBoxW(hwnd, message, L"ssce", MB_OK | MB_ICONERROR);
+}
+
 bool confirmSaveChanges(HWND hwnd) {
   if (!SendMessageW(hEdit, SCI_GETMODIFY, 0, 0)) return true;
 
@@ -93,10 +112,7 @@ LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
       }  // SCN_UPDATEUI
 
       if (nmhdr->code == SCN_MODIFIED) {
-        wchar_t title[MAX_PATH + 16];
-        const bool isModified = SendMessageW(hEdit, SCI_GETMODIFY, 0, 0);
-        wsprintfW(title, isModified ? L"%s* - ssce" : L"%s - ssce", path);
-        SetWindowTextW(hwnd, title);
+        updateWindowTitle(hwnd);
       }
       return 0;
     }  // WM_NOTIFY
@@ -109,7 +125,7 @@ LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
           path[0] = L'\0';
           SendMessageA(hEdit, SCI_SETTEXT, 0, (LPARAM) "");
           SendMessageA(hEdit, SCI_SETSAVEPOINT, 0, 0);
-          SetWindowTextW(hwnd, L"ssce");
+          updateWindowTitle(hwnd);
           return 0;
 
         case IDM_OPEN: {
@@ -126,7 +142,10 @@ LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
           if (!GetOpenFileNameW(&ofn)) return 0;
 
           std::ifstream file(selectedPath, std::ios::binary);
-          if (!file) return 0;
+          if (!file) {
+            showFileError(hwnd, L"開く", selectedPath);
+            return 0;
+          }
 
           /* ファイル拡張子を取得 */
           std::filesystem::path filePath(selectedPath);
@@ -156,12 +175,15 @@ LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
           }
 
           std::string text((std::istreambuf_iterator<char>(file)), {});
+          if (file.bad()) {
+            showFileError(hwnd, L"開く", selectedPath);
+            return 0;
+          }
+
           wcscpy_s(path, selectedPath);
           SendMessageA(hEdit, SCI_SETTEXT, 0, (LPARAM)text.c_str());
           SendMessageA(hEdit, SCI_SETSAVEPOINT, 0, 0);
-          wchar_t title[MAX_PATH + 16];
-          wsprintfW(title, L"%s - ssce", path);
-          SetWindowTextW(hwnd, title);
+          updateWindowTitle(hwnd);
           return 0;
         }  // IDM_OPEN
 
@@ -176,14 +198,19 @@ LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
           SendMessageA(hEdit, SCI_GETTEXT, length + 1, (LPARAM)text.data());
 
           std::ofstream file(path, std::ios::binary);
-          if (!file) return 0;
+          if (!file) {
+            showFileError(hwnd, L"保存", path);
+            return 0;
+          }
 
           file.write(text.data(), length);
+          if (!file) {
+            showFileError(hwnd, L"保存", path);
+            return 0;
+          }
 
           SendMessageA(hEdit, SCI_SETSAVEPOINT, 0, 0);
-          wchar_t title[MAX_PATH + 16];
-          wsprintfW(title, L"%s - ssce", path);
-          SetWindowTextW(hwnd, title);
+          updateWindowTitle(hwnd);
           return 0;
         }  // IDM_SAVE
 
@@ -203,14 +230,19 @@ LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
           SendMessageA(hEdit, SCI_GETTEXT, length + 1, (LPARAM)text.data());
 
           std::ofstream file(path, std::ios::binary);
-          if (!file) return 0;
+          if (!file) {
+            showFileError(hwnd, L"保存", path);
+            return 0;
+          }
 
           file.write(text.data(), length);
+          if (!file) {
+            showFileError(hwnd, L"保存", path);
+            return 0;
+          }
 
           SendMessageA(hEdit, SCI_SETSAVEPOINT, 0, 0);
-          wchar_t title[MAX_PATH + 16];
-          wsprintfW(title, L"%s - ssce", path);
-          SetWindowTextW(hwnd, title);
+          updateWindowTitle(hwnd);
           return 0;
         }  // IDM_SAVEAS
 
