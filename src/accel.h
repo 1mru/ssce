@@ -15,6 +15,7 @@ ACCEL accel[] = {
 
     /* 編集メニュー */
     {FVIRTKEY | FCONTROL, 'Z', IDM_UNDO},
+    {FVIRTKEY | FCONTROL, 'Y', IDM_REDO},
     {FVIRTKEY | FCONTROL, 'X', IDM_CUT},
     {FVIRTKEY | FCONTROL, 'C', IDM_COPY},
     {FVIRTKEY | FCONTROL, 'V', IDM_PASTE},

@@ -5,6 +5,7 @@
 HMENU createContextMenu() {
   HMENU hCtx = CreatePopupMenu();
   AppendMenuW(hCtx, MF_STRING, IDM_UNDO, L"元に戻す(&U)");
+  AppendMenuW(hCtx, MF_STRING, IDM_REDO, L"やり直し(&R)");
   AppendMenuW(hCtx, MF_SEPARATOR, 0, nullptr);
   AppendMenuW(hCtx, MF_STRING, IDM_CUT, L"切り取り(&T)");
   AppendMenuW(hCtx, MF_STRING, IDM_COPY, L"コピー(&C)");
@@ -24,6 +25,7 @@ HMENU createMenu() {
 
   HMENU hEditMenu = CreatePopupMenu();
   AppendMenuW(hEditMenu, MF_STRING, IDM_UNDO, L"元に戻す(&U)\tCtrl+Z");
+  AppendMenuW(hEditMenu, MF_STRING, IDM_REDO, L"やり直し(&R)\tCtrl+Y");
   AppendMenuW(hEditMenu, MF_SEPARATOR, 0, nullptr);
   AppendMenuW(hEditMenu, MF_STRING, IDM_CUT, L"切り取り(&T)\tCtrl+X");
   AppendMenuW(hEditMenu, MF_STRING, IDM_COPY, L"コピー(&C)\tCtrl+C");

@@ -15,6 +15,7 @@
 #define IDM_COPY 7       // コピー
 #define IDM_PASTE 8      // 貼り付け
 #define IDM_SELECTALL 9  // すべて選択
+#define IDM_REDO 10      // やり直し
 
 HMENU createMenu();
 HMENU createContextMenu();

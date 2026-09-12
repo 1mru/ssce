@@ -215,6 +215,10 @@ LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
           SendMessageW(hEdit, SCI_UNDO, 0, 0);
           return 0;
 
+        case IDM_REDO:
+          SendMessageW(hEdit, SCI_REDO, 0, 0);
+          return 0;
+
         case IDM_CUT:
           SendMessageW(hEdit, SCI_CUT, 0, 0);
           return 0;
