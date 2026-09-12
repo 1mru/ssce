@@ -3,7 +3,7 @@
 ; 非商用利用のみ.
 
 #define MyAppName "ssce"
-#define MyAppVersion "0.0.8"
+#define MyAppVersion "0.0.9"
 #define MyAppURL "https://1mru.github.io/ssce/"
 #define MyAppExeName "ssce.exe"
 #define MyAppAssocName MyAppName + " ファイル"
